@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html ng-app="AddBookApp">
+<head>
+  <title>Add Book</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>        
+  <style>
+    body {
+      font-family:Bookman Old Style,Times New Roman;
+      background-image:url('book.jpg');
+      padding: 40px;
+      text-align:center;
+    }
+    .container {
+      background-color: rgba(245, 222, 179, 0.95); 
+      padding: 25px;
+      border-radius: 12px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid;
+      background:ivory;
+    }
+    button {
+      padding: 8px 12px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn-add {
+      background-color: #26a69a;
+      color: white;
+    }
+    .btn-cancel {
+      background-color: #6c757d;
+      color: white;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-bottom: 15px;
+      color: #1976d2;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+  <script>
+    angular.module('AddBookApp', [])
+    .controller('AddBookController', function($scope, $http) {
+      $scope.book = {};
+      $scope.addBook = function() {
+        $http.post('http://localhost:3000/books', $scope.book)
+        .then(function(response) {
+          alert('✅ Book added successfully!');
+          $scope.resetForm();
+        }, function(error) {
+          console.error(error);
+          alert('❌ Error adding book. Check backend connection.');
+        });
+      };
+      $scope.resetForm = function() {
+        $scope.book = {};
+        if ($scope.bookForm) {
+          $scope.bookForm.$setPristine();
+          $scope.bookForm.$setUntouched();
+        }
+      };
+        if (localStorage.getItem('editBook')) {
+        $scope.book = JSON.parse(localStorage.getItem('editBook'));
+        localStorage.removeItem('editBook');
+      }
+    });
+  </script>
+</head>
+<body ng-controller="AddBookController">
+  <div class="container">
+    <a href="viewBook.html">📚 View Book List</a>
+    <a href="home.html">🏠 Back to Home</a>
+    <h2 style="color: #2c3e50;">Add Book</h2>
+    <form name="bookForm" ng-submit="addBook()">
+      <input type="text" ng-model="book.title" placeholder="Book Title" required>
+      <input type="text" ng-model="book.author" placeholder="Author" required>
+      <input type="text" ng-model="book.genre" placeholder="Genre" required>
+      <input type="number" ng-model="book.year" placeholder="Year" required min="1900">
+      <button type="submit" class="btn-add" ng-disabled="bookForm.$invalid">Add Book</button>
+      <button type="button" class="btn-cancel" ng-click="resetForm()">Cancel</button>
+    </form>
+  </div>
+</body>
+</html>
+

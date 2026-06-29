@@ -1,0 +1,46 @@
+
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
+mongoose.connect('mongodb://127.0.0.1:27017/bookLibrary', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.log(err));
+const bookSchema = new mongoose.Schema({
+    title: String,
+    author: String,
+    genre: String,
+    year: Number
+});
+const Book = mongoose.model('Book', bookSchema);
+app.get('/books', async (req, res) => {
+    const books = await Book.find();
+    res.json(books);
+});
+app.post('/books', async (req, res) => {
+    const newBook = new Book(req.body);
+    await newBook.save();
+    res.json({ message: 'Book added successfully', book: newBook });
+});
+app.put('/books/:id', async (req, res) => {
+    const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ message: 'Book updated successfully', book });
+});
+app.delete('/books/:id', async (req, res) => {
+    await Book.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Book deleted successfully' });
+});
+const PORT = 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
+
+
+
